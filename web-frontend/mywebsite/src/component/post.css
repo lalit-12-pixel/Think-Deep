@@ -1,0 +1,37 @@
+html.dark .reactions {
+  background-color: #302a2a !important;
+}
+
+html.dark .reactions:hover {
+  background-color: #252020b7 !important;
+}
+html.dark .boost {
+  border-right: 0.08rem solid rgb(107, 101, 101);
+}
+html.dark .vote {
+  border: 0.08rem solid rgb(107, 101, 101);
+}
+
+html.dark .reactions-hover:hover {
+  background-color: #302a2a !important;
+}
+
+html.light .reactions {
+  background-color: #cbc8c89c !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+html.light .reactions:hover {
+  background-color: #a8a4a49b !important;
+}
+html.light .boost {
+  border-right: 0.08rem solid rgb(107, 101, 101);
+}
+html.light .vote {
+  border: 0.08rem solid rgb(107, 101, 101);
+}
+
+html.light .reactions-hover:hover {
+  background-color: #cbc8c89c !important;
+}
+
