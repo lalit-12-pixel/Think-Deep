@@ -6,25 +6,24 @@ import { PostContext } from "../store/postlist.jsx";
 import Loader from "./loader.jsx";
 import SmallLoader from "./smallloader.jsx";
 
-const filterOptions = ["Daily"];
-
 const Posts = () => {
-  const { posts, loading, setLoading, setPage, initialloading } =
-    useContext(PostContext);
+  const { posts, loading, setPage, initialloading } = useContext(PostContext);
 
   const [activeFilter, setActiveFilter] = useState("Daily");
   const [scrollingLocked, setScrollingLocked] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // 🔧 Fix image URLs so localhost does NOT break production
+  // 🔧 Fix image URLs for production
   const fixImageUrl = (img) => {
     if (!img) return "";
 
+    // Replace localhost with production backend URL
     if (img.startsWith("http://localhost:3001")) {
       return img.replace("http://localhost:3001", API_URL);
     }
 
+    // If no http prefix, add uploads path
     if (!img.startsWith("http")) {
       return `${API_URL}/uploads/${img}`;
     }
@@ -32,6 +31,7 @@ const Posts = () => {
     return img;
   };
 
+  // Infinite scroll handler
   const handelInfiniteScroll = () => {
     if (
       window.innerHeight + document.documentElement.scrollTop + 300 >=
@@ -83,10 +83,8 @@ const Posts = () => {
           userSelect: "none",
         }}
       >
-        <p style={{ margin: "0" }}>
-          Showing:{" "}
-          <strong style={{ marginLeft: "0.5rem" }}>{activeFilter}</strong>{" "}
-          Thoughts
+        <p style={{ margin: 0 }}>
+          Showing: <strong>{activeFilter}</strong> Thoughts
         </p>
       </div>
 
@@ -98,14 +96,14 @@ const Posts = () => {
         >
           {posts.map((post) => (
             <Post
-              key={post._id} // 🔥 correct key
+              key={post.id || post._id}
               post={{
                 ...post,
-                image: fixImageUrl(post.image),
+                imageUrl: fixImageUrl(post.imageUrl), // ✅ Correct prop
                 user: {
                   ...post.user,
                   avatar: fixImageUrl(post.user?.avatar),
-                }
+                },
               }}
               activeFilter={activeFilter}
             />
@@ -125,7 +123,7 @@ const Posts = () => {
         </div>
       )}
 
-      {/* Infinite scroll loader */}
+      {/* Infinite loader */}
       {loading && (
         <div style={{ width: "100%", height: "5rem" }}>
           <SmallLoader />
