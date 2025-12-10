@@ -29,9 +29,7 @@ const Profile = () => {
     const checkSession = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:3001/", {
-          credentials: "include",
-        });
+        fetch(`${import.meta.env.VITE_API_URL}/`, { credentials: "include" });
 
         if (res.ok) {
           const data = await res.json();
@@ -67,12 +65,13 @@ const Profile = () => {
     const fetchPosts = async () => {
       setLoad(true);
       try {
-        const resPosts = await fetch(
-          `http://localhost:3001/myposts?_limit=5&_page=${page}`,
+        fetch(
+          `${import.meta.env.VITE_API_URL}/myposts?_limit=5&_page=${page}`,
           {
             credentials: "include",
           }
         );
+
         if (resPosts.ok) {
           const postData = await resPosts.json();
           setPosts((prevPosts) => [...prevPosts, ...postData.posts]);

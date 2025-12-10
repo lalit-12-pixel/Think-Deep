@@ -3,7 +3,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import Loader from "../loader";
 import SmallLoader from "../smallloader";
-
+const API_URL = import.meta.env.VITE_API_URL;
 const Security = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +17,7 @@ const Security = () => {
   const handleDeleteAccount = async (id) => {
     const confirmed = confirm("Are you sure you want to delete your account?");
     if (!confirmed) return;
-    const response = await fetch(`http://localhost:3001/deleteuser/${id}`, {
+    const response = await fetch(`${API_URL}/deleteuser/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -33,7 +33,7 @@ const Security = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch("http://localhost:3001/", {
+        const res = await fetch(`${API_URL}/`, {
           credentials: "include",
         });
         if (res.ok) {

@@ -14,17 +14,20 @@ const Createpost = () => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("http://localhost:3001/", {
-          credentials: "include",
-        });
-        if (!res.ok) navigate("/login");
-      } catch (error) {
-        console.error("Auth check failed:", error);
+  const checkAuth = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/`, {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
         navigate("/login");
       }
-    };
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      navigate("/login");
+    }
+  };
     checkAuth();
   }, [navigate]);
 

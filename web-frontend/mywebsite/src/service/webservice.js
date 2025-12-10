@@ -1,3 +1,7 @@
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+
 export const addItemToServer = async (file, description) => {
   const formData = new FormData();
   if (file) {
@@ -5,30 +9,39 @@ export const addItemToServer = async (file, description) => {
   }
 
   formData.append("description", description);
-  const response = await fetch("http://localhost:3001/createpost", {
+
+  const response = await fetch(`${API_URL}/createpost`, {
     method: "POST",
     body: formData,
-    credentials: "include",
+    credentials: "include", 
   });
+
   const result = await response.json();
+
   if (!response.ok || !result.post) {
     throw new Error(result.error || "Post creation failed");
   }
+
   return mapServerItemToLocalItem(result.post);
 };
 
 export const getItemsFromServer = async (page) => {
   const response = await fetch(
-    `http://localhost:3001/posts?_limit=5&_page=${page}`
+    `${API_URL}/posts?_limit=5&_page=${page}`,
+    { credentials: "include" }
   );
+
   const items = await response.json();
   return items.map(mapServerItemToLocalItem);
 };
 
+
 export const deleteItemFromServer = async (id) => {
-  await fetch(`http://localhost:3001/posts/${id}`, {
+  await fetch(`${API_URL}/posts/${id}`, {
     method: "DELETE",
+    credentials: "include",
   });
+
   return id;
 };
 

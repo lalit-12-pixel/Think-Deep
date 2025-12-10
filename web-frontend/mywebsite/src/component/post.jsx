@@ -7,7 +7,7 @@ import { useContext, useState } from "react";
 import { PostContext } from "../store/postlist.jsx";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
+const API_URL = import.meta.env.VITE_API_URL;
 dayjs.extend(relativeTime);
 
 const Media = ({ post, activeFilter }) => {
@@ -80,7 +80,7 @@ const Media = ({ post, activeFilter }) => {
           ? { field, comment: value }
           : { field, action: value };
       const response = await fetch(
-        `http://localhost:3001/posts/${post.id}/stat`,
+        `${API_URL}/posts/${post.id}/stat`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -119,7 +119,7 @@ const Media = ({ post, activeFilter }) => {
     try {
     
       const response = await fetch(
-        `http://localhost:3001/posts/save/${post.id}`,
+        `${API_URL}/posts/save/${post.id}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -140,7 +140,7 @@ const Media = ({ post, activeFilter }) => {
     try {
      
       const response = await fetch(
-        `http://localhost:3001/posts/save/${post.id}`,
+        `${API_URL}/posts/save/${post.id}`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },

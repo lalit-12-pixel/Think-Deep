@@ -22,11 +22,11 @@ const Editprofile = () => {
   const usernameRef = useRef();
 
   const navigate = useNavigate();
-
+const API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch("http://localhost:3001/", {
+        const res = await fetch(`${API_URL}/`, {
           credentials: "include",
         });
 
@@ -95,7 +95,7 @@ const Editprofile = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3001/editprofile", {
+      const res = await fetch(`${API_URL}/editprofile`, {
         method: "PUT",
         credentials: "include",
         body: formData,

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
-
+const API_URL = import.meta.env.VITE_API_URL;
 const ThoughtOfTheDay = () => {
   const [thought, setThought] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -9,7 +9,9 @@ const ThoughtOfTheDay = () => {
   const fetchBestThought = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/bestpost");
+      const res = await fetch(`${API_URL}/bestpost`, {
+        credentials: "include",
+      });
       const data = await res.json();
       setThought(data);
     } catch (err) {
@@ -75,7 +77,7 @@ const ThoughtOfTheDay = () => {
                       display: "block",
                     }}
                     onError={(e) => {
-                      e.target.style.display = "none"; 
+                      e.target.style.display = "none";
                     }}
                   />
                 </div>

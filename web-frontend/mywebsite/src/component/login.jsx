@@ -8,6 +8,9 @@ const Login = () => {
   const passwordRef = useRef(null);
   const [errors, setErrors] = useState([]);
 
+  // 🌍 Auto-select backend URL for local + production
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -15,12 +18,12 @@ const Login = () => {
     const password = passwordRef.current.value;
 
     try {
-      const res = await fetch("http://localhost:3001/login", {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // required for sessions
         body: JSON.stringify({ email, password }),
       });
 
@@ -37,8 +40,9 @@ const Login = () => {
     }
   };
 
+  // 🌍 Google OAuth redirect (Backend URL)
   const handleGoogleSignup = () => {
-    window.location.href = "http://localhost:3001/auth/google";
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   return (
@@ -46,9 +50,10 @@ const Login = () => {
       <Helmet>
         <title>Log in to your Account</title>
       </Helmet>
+
       <form method="post" onSubmit={handleLogin}>
         <div
-        className="onmobile"
+          className="onmobile"
           style={{
             width: "95%",
             maxWidth: "600px",
@@ -62,7 +67,7 @@ const Login = () => {
           <h2
             style={{
               marginBottom: "24px",
-              marginTop:"10px",
+              marginTop: "10px",
               textAlign: "center",
               fontWeight: "600",
               fontSize: "1.5rem",
@@ -92,7 +97,12 @@ const Login = () => {
           <div style={{ marginBottom: "16px" }}>
             <label
               htmlFor="email"
-              style={{ fontWeight: "500", display: "block", marginBottom: "6px" ,marginLeft:"5px"}}
+              style={{
+                fontWeight: "500",
+                display: "block",
+                marginBottom: "6px",
+                marginLeft: "5px",
+              }}
             >
               Email
             </label>
@@ -116,7 +126,12 @@ const Login = () => {
           <div style={{ marginBottom: "24px" }}>
             <label
               htmlFor="password"
-              style={{ fontWeight: "500", display: "block", marginBottom: "6px" , marginLeft:"5px"}}
+              style={{
+                fontWeight: "500",
+                display: "block",
+                marginBottom: "6px",
+                marginLeft: "5px",
+              }}
             >
               Password
             </label>

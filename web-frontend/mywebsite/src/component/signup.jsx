@@ -11,6 +11,9 @@ const Signup = () => {
   const confirmPasswordRef = useRef(null);
   const [errors, setErrors] = useState([]);
 
+  // 🌍 Auto-detect API URL for local + production
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const handleSignup = async (e) => {
     e.preventDefault();
 
@@ -23,19 +26,19 @@ const Signup = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:3001/signup", {
+      const res = await fetch(`${API_URL}/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // needed for session cookies
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        navigate("/");
+        navigate("/login");
       } else {
         if (passwordRef.current) passwordRef.current.value = "";
         if (confirmPasswordRef.current) confirmPasswordRef.current.value = "";
@@ -47,10 +50,10 @@ const Signup = () => {
     }
   };
 
+  // 🌍 Google OAuth signup (redirect to backend)
   const handleGoogleSignup = () => {
-    window.location.href = "http://localhost:3001/auth/google";
+    window.location.href = `${API_URL}/auth/google`;
   };
-
   return (
     <>
       <Helmet>

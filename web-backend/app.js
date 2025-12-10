@@ -1,16 +1,14 @@
+require("dotenv").config(); 
 
 const express = require('express');
 const path = require('path');
-const User =require('./models/User');
+const User = require('./models/User');
 
-//for google login
+// Passport
 const passport = require("passport");
-require("dotenv").config();
 require("./config/passport");
-//
 
-
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const cors = require('cors');
@@ -19,28 +17,31 @@ const postRouter = require('./router/postsrouter');
 const errorsController = require('./controller/error');
 const authrouter = require('./router/authrouter');
 
-
-const DB_PATH = "mongodb+srv://routralalit:lalit.in@lalit.w02qtxh.mongodb.net/posts?retryWrites=true&w=majority&appName=lalit";
+// 🔥 Use MONGO_URI from environment (important for Render!)
+const DB_PATH = process.env.MONGO_URI;
 
 const app = express();
 
-
+// 🌍 CORS (Production + Local)
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://think-deep-hazel.vercel.app"
+  ],
   credentials: true,
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
 app.use("/uploads", express.static("uploads"));
 
+// 🗄 Session Store
 const store = new MongoDBStore({
   uri: DB_PATH,
   collection: "sessions"
 });
 
+// 🛑 PRODUCTION COOKIE SETTINGS FOR RENDER
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -48,53 +49,44 @@ app.use(session({
   store: store,
   cookie: {
     httpOnly: true,
-    secure: false, 
-    sameSite: 'lax'
+    secure: process.env.NODE_ENV === "production", // true on Render
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   }
 }));
 
-//for google login
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// Routers
 app.use(authrouter); 
+app.use(postRouter);
 
+// ✔ Session check route
 app.get("/", async (req, res) => {
   if (!req.session?.isLoggedIn || !req.session?.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
     const freshUser = await User.findById(req.session.user._id).lean();
-
-    if (!freshUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!freshUser) return res.status(404).json({ error: "User not found" });
     return res.status(200).json({ user: freshUser });
   } catch (err) {
     return res.status(500).json({ error: "Server error" });
   }
 });
-  
 
-
-
-
-
-app.use(postRouter); 
-
-
+// Error handler
 app.use(errorsController.pageNotFound);
 
-const PORT = 3001;
+// 🟢 IMPORTANT: Render dynamic PORT
+const PORT = process.env.PORT || 3001;
 
 mongoose.connect(DB_PATH)
   .then(() => {
     console.log('✅ Connected to MongoDB');
     app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
   })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err);
-  });
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
