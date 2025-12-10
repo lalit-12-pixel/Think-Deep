@@ -1,12 +1,11 @@
+
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaHome } from "react-icons/fa";
-import { IoPerson } from "react-icons/io5";
-import { IoCreate } from "react-icons/io5";
+import { IoPerson, IoCreate } from "react-icons/io5";
 import { AiFillFire } from "react-icons/ai";
 import { IoIosSettings } from "react-icons/io";
 import { useState, useEffect } from "react";
-const API_URL = import.meta.env.VITE_API_URL;
 
 function Sidebar() {
   const location = useLocation();
@@ -15,6 +14,8 @@ function Sidebar() {
 
   const [login, setLogin] = useState(true);
   const [user, setUser] = useState(null);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -36,11 +37,10 @@ function Sidebar() {
       }
     };
     checkLogin();
-  }, [location]);
+  }, [location, API_URL]);
 
   const handleSignout = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch(`${API_URL}/auth/signout`, {
         method: "POST",
@@ -48,7 +48,6 @@ function Sidebar() {
       });
 
       const data = await response.json();
-
       if (response.ok && data.success) {
         setLogin(false);
         navigate("/login");
@@ -59,6 +58,7 @@ function Sidebar() {
       alert("Logout error. Please try again.");
     }
   };
+
 
   return (
     <>

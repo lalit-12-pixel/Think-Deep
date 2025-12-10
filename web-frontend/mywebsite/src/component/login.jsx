@@ -8,22 +8,18 @@ const Login = () => {
   const passwordRef = useRef(null);
   const [errors, setErrors] = useState([]);
 
-  // 🌍 Auto-select backend URL for local + production
   const API_URL = import.meta.env.VITE_API_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // required for sessions
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
@@ -33,15 +29,15 @@ const Login = () => {
         navigate("/home");
       } else {
         if (passwordRef.current) passwordRef.current.value = "";
-        setErrors(data.errors || [{ msg: "Login failed. Please try again." }]);
+        setErrors(data.errors || [{ msg: data.error || "Login failed" }]);
       }
     } catch (err) {
       setErrors([{ msg: "Something went wrong. Please try again." }]);
     }
   };
 
-  // 🌍 Google OAuth redirect (Backend URL)
   const handleGoogleSignup = () => {
+    // starts OAuth flow
     window.location.href = `${API_URL}/auth/google`;
   };
 

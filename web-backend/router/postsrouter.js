@@ -3,12 +3,8 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 
-
 const postsRouter = express.Router();
-
-// Local Module
 const postsController = require("../controller/postscontroller");
-
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
@@ -16,21 +12,32 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-
-
+// Create post
 postsRouter.post("/createpost", upload.single("image"), postsController.createPost);
+
+// Delete post
 postsRouter.delete("/posts/:id", postsController.deletePost);
+
+// Update stats
 postsRouter.patch("/posts/:id/stat", postsController.updateStat);
-postsRouter.get("/myposts",  postsController.getmyposts);
-postsRouter.put("/editprofile", upload.single("avatar"),  postsController.editmyprofile);
+
+// My posts
+postsRouter.get("/myposts", postsController.getmyposts);
+
+// Edit profile (avatar)
+postsRouter.put("/editprofile", upload.single("avatar"), postsController.editmyprofile);
+
+// Delete user
 postsRouter.delete("/deleteuser/:id", postsController.deleteuser);
 
-postsRouter.get("/bestpost",  postsController.getbestpost);
-postsRouter.patch("/posts/save/:postId",postsController.setSave);
-postsRouter.delete("/posts/save/:postId",postsController.setUnsave);
+// Best post
+postsRouter.get("/bestpost", postsController.getbestpost);
 
+// Save/unsave
+postsRouter.patch("/posts/save/:postId", postsController.setSave);
+postsRouter.delete("/posts/save/:postId", postsController.setUnsave);
 
-
-
+// <-- NEW: public posts listing (pagination compatible with frontend)
+postsRouter.get("/posts", postsController.getAllPosts);
 
 module.exports = postsRouter;

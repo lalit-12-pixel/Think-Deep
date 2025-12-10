@@ -3,20 +3,16 @@ const authRouter = express.Router();
 const authController = require("../controller/authcontroller");
 const passport = require("passport");
 
-// 🌍 FRONTEND URL (Vercel or Localhost)
+// FRONTEND URL (set via env)
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
-// ---------------------------------------------------------
-// 🔐 GOOGLE LOGIN – START AUTH FLOW
-// ---------------------------------------------------------
+// Start Google OAuth
 authRouter.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-// ---------------------------------------------------------
-// 🔐 GOOGLE LOGIN CALLBACK (Render → Vercel redirect)
-// ---------------------------------------------------------
+// Google OAuth callback
 authRouter.get(
   "/google/callback",
   passport.authenticate("google", {
@@ -32,40 +28,36 @@ authRouter.get(
 
       req.session.save((err) => {
         if (err) return res.redirect(`${FRONTEND_URL}/login`);
-
-        // SUCCESS → redirect to frontend dashboard
         res.redirect(`${FRONTEND_URL}/home`);
       });
     });
   }
 );
 
-// ---------------------------------------------------------
-// 🔐 LOGOUT
-// ---------------------------------------------------------
+// Logout
+authRouter.post("/signout", authController.postsignout); // keep POST signout
 authRouter.get("/logout", (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
-
     req.session.destroy(() => {
       res.clearCookie("connect.sid", {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
-
-      // Redirect to frontend homepage
       res.redirect(FRONTEND_URL);
     });
   });
 });
 
-// ---------------------------------------------------------
-// 🔐 AUTH CONTROLLER ROUTES
-// ---------------------------------------------------------
+// Local auth routes
 authRouter.post("/login", authController.postlogin);
 authRouter.post("/signup", authController.postsignup);
-authRouter.post("/signout", authController.postsignout);
-authRouter.get("/posts", authController.getPost);
+
+// Expose a minimal posts endpoint for controllers that expect it
+authRouter.get("/me", (req, res) => {
+  if (!req.user) return res.json({ loggedIn: false });
+  return res.json({ loggedIn: true, user: req.user });
+});
 
 module.exports = authRouter;

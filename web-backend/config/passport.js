@@ -8,7 +8,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL, 
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -18,16 +18,15 @@ passport.use(
           user = await User.create({
             googleId: profile.id,
             name: profile.displayName,
-            email: profile.emails[0].value,
-            username: profile.emails[0].value.split("@")[0],
-            avatar: profile.photos[0].value,
+            email: profile.emails?.[0]?.value || "",
+            username: (profile.emails?.[0]?.value || "").split("@")[0] || profile.id,
+            avatar: profile.photos?.[0]?.value || "",
             isVerified: true,
           });
         }
-
-        done(null, user);
+        return done(null, user);
       } catch (err) {
-        done(err, null);
+        return done(err, null);
       }
     }
   )
