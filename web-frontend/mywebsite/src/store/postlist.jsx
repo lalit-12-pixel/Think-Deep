@@ -4,106 +4,74 @@ import {
   addItemToServer,
   deleteItemFromServer,
 } from "../service/webservice.js";
-
 const API_URL = import.meta.env.VITE_API_URL;
-
 export const PostContext = createContext({
   posts: [],
-  loading: false,
-  initialloading: true,
+  loading: null,
+  setPage: null,
   addPost: () => {},
   deletePost: () => {},
-  setPage: () => {},
 });
 
-// ⭐ Standardize post structure from backend → frontend
-const mapServerPost = (post) => {
-  return {
-    id: post._id, //🔥 always use id on frontend
-    description: post.description || "",
-    imageUrl: post.imageUrl || "", //🔥 always imageUrl
-    likes: post.likes ?? 0,
-    dislikes: post.dislikes ?? 0,
-    comments: post.comments ?? [],
-    shares: post.shares ?? 0,
-    createdAt: post.createdAt,
-    user: {
-      name: post.user?.name || "Unknown",
-      username: post.user?.username || "anonymous",
-      avatar: post.user?.avatar || "",
-    },
-  };
-};
+const postsreducer = (initialposts, action) => {
+  let finalposts = initialposts;
 
-// ⭐ Reducer
-const postsReducer = (state, action) => {
-  switch (action.type) {
-    case "SET_POSTS": {
-      const incoming = action.payload.map(mapServerPost);
-      const merged = [...state, ...incoming];
-
-      // Remove duplicates by id
-      const unique = Array.from(new Map(merged.map(p => [p.id, p])).values());
-
-      return unique;
-    }
-
-    case "ADD_POST":
-      return [mapServerPost(action.payload), ...state];
-
-    case "DELETE_POST":
-      return state.filter((post) => post.id !== action.payload);
-
-    default:
-      return state;
+  if (action.type === "SET_POSTS") {
+    const allPosts = [...initialposts, ...action.payload];
+    const uniquePosts = Array.from(
+      new Map(allPosts.map((post) => [post._id || post.id, post])).values()
+    );
+    finalposts = uniquePosts;
+  } else if (action.type === "DELETE_POST") {
+    finalposts = initialposts.filter((post) => post.id !== action.payload.id);
+  } else if (action.type === "ADD_POST") {
+    finalposts = [action.payload, ...initialposts];
   }
+
+  return finalposts;
 };
 
 export const PostProvider = ({ children }) => {
-  const [posts, dispatch] = useReducer(postsReducer, []);
+  const [posts, dispatch] = useReducer(postsreducer, []);
+
   const [loading, setLoading] = useState(false);
-  const [initialloading, setInitialLoading] = useState(true);
+  const [initialloading, setinitialLoading] = useState(true);
   const [page, setPage] = useState(1);
 
-  // ⭐ Fetch paginated posts
   useEffect(() => {
     const loadPosts = async () => {
       setLoading(true);
       try {
-        const rawPosts = await getItemsFromServer(page);
-        dispatch({ type: "SET_POSTS", payload: rawPosts });
+        const serverPosts = await getItemsFromServer(page);
+        dispatch({ type: "SET_POSTS", payload: serverPosts });
       } catch (err) {
-        console.error("Post loading failed:", err);
       } finally {
         setLoading(false);
-        setInitialLoading(false);
+        setinitialLoading(false);
       }
     };
-
     loadPosts();
   }, [page]);
 
-  // ⭐ Add new post
   const addPost = async (file, description) => {
     const post = await addItemToServer(file, description);
     dispatch({ type: "ADD_POST", payload: post });
   };
 
-  // ⭐ Delete post
   const deletePost = async (id) => {
     await deleteItemFromServer(id);
-    dispatch({ type: "DELETE_POST", payload: id });
+    dispatch({ type: "DELETE_POST", payload: { id } });
   };
-
   return (
     <PostContext.Provider
       value={{
         posts,
         loading,
-        initialloading,
+        setLoading,
         addPost,
         deletePost,
         setPage,
+        initialloading,
       }}
     >
       {children}
