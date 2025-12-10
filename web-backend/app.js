@@ -24,17 +24,19 @@ const app = express();
 
 // 🌍 CORS (Production + Local)
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://think-deep-hazel.vercel.app"
-  ],
+ origin: [
+  "http://localhost:5173",
+  "https://think-deep-hazel.vercel.app",
+  "https://think-deep.onrender.com",
+],
   credentials: true,
 }));
 
+app.use("/uploads", cors(), express.static("uploads"));
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static("uploads"));
-
 // 🗄 Session Store
 const store = new MongoDBStore({
   uri: DB_PATH,

@@ -11,8 +11,26 @@ const filterOptions = ["Daily"];
 const Posts = () => {
   const { posts, loading, setLoading, setPage, initialloading } =
     useContext(PostContext);
+
   const [activeFilter, setActiveFilter] = useState("Daily");
   const [scrollingLocked, setScrollingLocked] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  // 🔧 Fix image URLs so localhost does NOT break production
+  const fixImageUrl = (img) => {
+    if (!img) return "";
+
+    if (img.startsWith("http://localhost:3001")) {
+      return img.replace("http://localhost:3001", API_URL);
+    }
+
+    if (!img.startsWith("http")) {
+      return `${API_URL}/uploads/${img}`;
+    }
+
+    return img;
+  };
 
   const handelInfiniteScroll = () => {
     if (
@@ -54,68 +72,12 @@ const Posts = () => {
         <title>Posts</title>
       </Helmet>
 
-      {/* Filter Tabs */}
-      {/* <div
-        className="postfilter"
-        style={{
-          height: "56px",
-          maxWidth: "700px",
-          width: "100%",
-          overflowX: "auto",
-          whiteSpace: "nowrap",
-          display: "flex",
-          alignItems: "center",
-          border: "1px solid rgba(120, 120, 120, 0.2)",
-          borderRadius: "1.9rem",
-          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.08)",
-          margin: " auto",
-        }}
-      >
-        <ul
-          style={{
-            display: "flex",
-            listStyle: "none",
-            margin: 0,
-            padding: "0 1rem",
-            gap: "8px",
-          }}
-        >
-          {filterOptions.map((option) => (
-            <li
-              key={option}
-              onClick={() => setActiveFilter(option)}
-              style={{
-                padding: "0 20px",
-                height: "40px",
-                minWidth: "100px",
-                border: `0.5px solid ${
-                  activeFilter === option ? "#007bff" : "rgba(60, 60, 63, 1)"
-                }`,
-                backgroundColor:
-                  activeFilter === option ? "#46494e9a" : "transparent",
-                borderRadius: "19px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-                userSelect: "none",
-              }}
-            >
-              {option}
-            </li>
-          ))}
-        </ul>
-      </div> */}
-
-      {/* Active Filter */}
+      {/* Summary */}
       <div
-        className=""
         style={{
           maxWidth: "700px",
           width: "100%",
-          margin: " 0.8rem auto",
+          margin: "0.8rem auto",
           display: "flex",
           alignItems: "center",
           userSelect: "none",
@@ -128,7 +90,7 @@ const Posts = () => {
         </p>
       </div>
 
-      {/* Posts */}
+      {/* POSTS LIST */}
       {posts && posts.length > 0 ? (
         <div
           className="d-flex flex-wrap justify-content-center"
@@ -136,8 +98,15 @@ const Posts = () => {
         >
           {posts.map((post) => (
             <Post
-              key={post.id}
-              post={post}
+              key={post._id} // 🔥 correct key
+              post={{
+                ...post,
+                image: fixImageUrl(post.image),
+                user: {
+                  ...post.user,
+                  avatar: fixImageUrl(post.user?.avatar),
+                }
+              }}
               activeFilter={activeFilter}
             />
           ))}
@@ -148,9 +117,6 @@ const Posts = () => {
           role="alert"
           style={{
             margin: "1rem auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContentL: "center",
             maxWidth: "700px",
             width: "100%",
           }}
@@ -159,8 +125,12 @@ const Posts = () => {
         </div>
       )}
 
-      {loading && <div style={{width:"100%",height:"5rem"}}>
-      <SmallLoader/> </div>}
+      {/* Infinite scroll loader */}
+      {loading && (
+        <div style={{ width: "100%", height: "5rem" }}>
+          <SmallLoader />
+        </div>
+      )}
     </>
   );
 };
