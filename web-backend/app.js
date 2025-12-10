@@ -59,7 +59,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routers
-app.use(authrouter); 
+app.use("/auth", authrouter);
 app.use(postRouter);
 
 // ✔ Session check route

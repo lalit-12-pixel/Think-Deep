@@ -6,6 +6,7 @@ import { IoCreate } from "react-icons/io5";
 import { AiFillFire } from "react-icons/ai";
 import { IoIosSettings } from "react-icons/io";
 import { useState, useEffect } from "react";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Sidebar() {
   const location = useLocation();
@@ -18,7 +19,7 @@ function Sidebar() {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const response = await fetch("http://localhost:3001/", {
+        const response = await fetch(`${API_URL}/`, {
           credentials: "include",
         });
         const data = await response.json();
@@ -41,7 +42,7 @@ function Sidebar() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3001/signout", {
+      const response = await fetch(`${API_URL}/auth/signout`, {
         method: "POST",
         credentials: "include",
       });

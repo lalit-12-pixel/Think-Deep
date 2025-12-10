@@ -42,7 +42,7 @@ function Sidebar() {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/signout`, {
+      const response = await fetch(`${API_URL}/auth/signout`, {
         method: "POST",
         credentials: "include",
       });

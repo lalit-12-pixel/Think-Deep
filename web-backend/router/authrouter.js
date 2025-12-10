@@ -3,14 +3,14 @@ const authRouter = express.Router();
 const authController = require("../controller/authcontroller");
 const passport = require("passport");
 
-// 🌍 FRONTEND URL (Production + Development)
+// 🌍 FRONTEND URL (Vercel or Localhost)
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 // ---------------------------------------------------------
 // 🔐 GOOGLE LOGIN – START AUTH FLOW
 // ---------------------------------------------------------
 authRouter.get(
-  "/auth/google",
+  "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
@@ -18,7 +18,7 @@ authRouter.get(
 // 🔐 GOOGLE LOGIN CALLBACK (Render → Vercel redirect)
 // ---------------------------------------------------------
 authRouter.get(
-  "/auth/google/callback",
+  "/google/callback",
   passport.authenticate("google", {
     failureRedirect: `${FRONTEND_URL}/login`,
     session: true,
@@ -33,7 +33,7 @@ authRouter.get(
       req.session.save((err) => {
         if (err) return res.redirect(`${FRONTEND_URL}/login`);
 
-        // SUCCESS → redirect user to frontend dashboard
+        // SUCCESS → redirect to frontend dashboard
         res.redirect(`${FRONTEND_URL}/home`);
       });
     });
@@ -61,7 +61,7 @@ authRouter.get("/logout", (req, res, next) => {
 });
 
 // ---------------------------------------------------------
-// AUTH ROUTES
+// 🔐 AUTH CONTROLLER ROUTES
 // ---------------------------------------------------------
 authRouter.post("/login", authController.postlogin);
 authRouter.post("/signup", authController.postsignup);
